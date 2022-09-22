@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FC, lazy, Suspense, useEffect } from "react";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import "./App.css";
+import { Search } from "./components";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import { getPokemon, getPokemonDetails } from "./api/index";
+import { setPokemons } from "./actions";
+
+import { getPokemonsWidthDetails } from "./actions/index";
+import { fetchPokemonsWithDetails } from "./slices/dataSlice";
+
+const List = lazy(() => import("./components/list/List"));
+
+export const App = () => {
+	const pokemons: any = useSelector(
+		(state: any) => state.data.pokemons,
+		shallowEqual
+	);
+	const dispatch = useDispatch<any>();
+
+	// const [pokemons, setPokemons] = useState([])
+	useEffect(() => {
+		dispatch(fetchPokemonsWithDetails());
+	}, []);
+
+	return (
+		<Suspense fallback={<h1>Cargando</h1>}>
+			<div className="App">
+				<Search />
+
+				<List pokemons={pokemons} />
+			</div>
+		</Suspense>
+	);
+};
 
 export default App;
